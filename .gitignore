@@ -56,3 +56,5 @@ db.sqlite3
 
 #local settings
 local_settings.py
+
+#migrations_file
