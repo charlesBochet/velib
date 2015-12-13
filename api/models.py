@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Article(models.Model):
+class Station(models.Model):
     number = models.PositiveIntegerField()
     contract_name = models.CharField(max_length=15)
     name = models.CharField(max_length=40)
