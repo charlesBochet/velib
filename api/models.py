@@ -12,11 +12,11 @@ class Station(models.Model):
     bonus = models.BooleanField()
     status = models.CharField(max_length=6)
     bike_stands = models.PositiveSmallIntegerField()
-    available_bike_stands = models.PositiveSmallIntegerField
-    available_bikes = models.PositiveSmallIntegerField
-    last_update = models.DateTimeField
+    available_bike_stands = models.PositiveSmallIntegerField()
+    available_bikes = models.PositiveSmallIntegerField()
+    last_update = models.DateTimeField()
 
     def __str__(self):
         """Method returning a simple description of the object"""
 
-        return self.titre
+        return self.name
