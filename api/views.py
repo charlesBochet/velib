@@ -8,3 +8,4 @@ def home(request):
     text = """<h1>The Vélib 2.0</h1>
         <p>Bienvenue sur la page d'accueil de l'API</p>"""
     return HttpResponse(text)
+
