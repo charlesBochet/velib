@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.utils import timezone
+from django.http import HttpResponse
 from api.models import Station
 import requests
 import csv
 import io
+from geopy.distance import vincenty
 
 
 # Create your views here.
@@ -45,3 +47,20 @@ def pulldata(request):
             row_count += 1
     return render(request, 'api/pulldata.html', {'row_count': row_count})
 
+
+def getstation(request, lat, lng):
+    """Returns closest velib station"""
+    destination_geopoint = (float(lat), float(lng))
+    stations = Station.objects.all()
+    min_distance = (999999999, 999999999, 'Unknown')
+    for s in stations:  # Compute all distances destination from destination to stations
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_geopoint = (s.lat, s.lng)
+            distance = vincenty(destination_geopoint, station_geopoint).m
+            if distance < min_distance[1]:
+                min_distance = (s.number, distance, s.address)
+            else:
+                pass
+        else:
+            pass
+    return HttpResponse(min_distance)

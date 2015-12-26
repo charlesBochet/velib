@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^home$', views.home),
-    url(r'^pulldata$', views.pulldata)
+    url(r'^$', views.home),
+    url(r'^pulldata$', views.pulldata),
+    url(r'^getstation/(?P<lat>[+-]?\d?\d.?\d*)/(?P<lng>[+-]?\d?\d?\d.?\d*)$', views.getstation)
 ]
