@@ -7,6 +7,8 @@ import requests
 import csv
 import io
 from geopy.distance import vincenty
+from geopy.geocoders import Nominatim
+
 
 
 # Create your views here.
@@ -48,8 +50,8 @@ def pulldata(request):
     return render(request, 'api/pulldata.html', {'row_count': row_count})
 
 
-def getstation(request, lat, lng):
-    """Returns closest velib station"""
+def getstation_coordinates(request, lat, lng):
+    """Returns closest velib station from coordinates."""
     destination_geopoint = (float(lat), float(lng))
     stations = Station.objects.all()
     min_distance = (999999999, 999999999, 'Unknown')
@@ -63,4 +65,24 @@ def getstation(request, lat, lng):
                 pass
         else:
             pass
-    return HttpResponse(min_distance)
+    return HttpResponse(min_distance[2])
+
+
+def getstation_address(requests, address):
+    """Returns closest velib station from address."""
+    geolocator = Nominatim()
+    location = geolocator.geocode(address)
+    destination_geopoint = (location.latitude, location.longitude)
+    stations = Station.objects.all()
+    min_distance = (999999999, 999999999, 'Unknown')
+    for s in stations:  # Compute all distances destination from destination to stations
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_geopoint = (s.lat, s.lng)
+            distance = vincenty(destination_geopoint, station_geopoint).m
+            if distance < min_distance[1]:
+                min_distance = (s.number, distance, s.address)
+            else:
+                pass
+        else:
+            pass
+    return HttpResponse(min_distance[2])
