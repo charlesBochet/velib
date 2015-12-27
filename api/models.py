@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class Station(models.Model):
     number = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
