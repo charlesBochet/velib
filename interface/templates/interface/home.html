@@ -1,0 +1,120 @@
+{% extends "interface/base.html" %}
+{% load static %}
+{% block title %}Projet Velib 2.0{% endblock %}
+{% block content %}
+<div id="map"></div>
+<div id="search-block">
+  <div class="form-group map-search-input">
+    <div class="input-group">
+      <input type="text" id="start" class="form-control" placeholder="Départ" aria-describedby="basic-addon1">
+      <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/origine.png' %}" /></span>
+    </div>
+  </div>
+  <div class="form-group map-search-input">
+    <div class="input-group">
+      <input type="text" id="end" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+      <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/destination.png' %}" /></span>
+    </div>
+  </div>
+  <button id="submit-search" class="btn sharp pull-right purple">Calculer l'itinéraire</button>
+</div>
+<div id="direction-panel">
+
+</div>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&signed_in=true">
+</script>
+<script type="text/javascript">
+    function initialize() {
+        var directionsService = new google.maps.DirectionsService;
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 48.856614, lng: 2.3522219000000177},
+            zoom: 13,
+            disableDefaultUI: true
+        });
+        var directionsDisplay = new google.maps.DirectionsRenderer({
+            draggable: true,
+            map: map,
+        });
+
+        var on_search = function() {
+            $('#direction-panel').css('display', 'none');
+            draw_directions(directionsService, directionsDisplay);
+        };
+          document.getElementById('submit-search').addEventListener('click', on_search);
+
+        var myLatLng = {lat: 48.86138, lng: 2.32442};
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: 'Hello World!'
+        });
+
+        setMarkers(map);
+    }
+
+    // Data for the markers consisting of a name, a LatLng and a zIndex for the
+    // order in which these markers should display on top of each other.
+    var stations = [
+      ['00903 - QUAI MAURIAC  / PONT DE BERCY', 48.8371336895, 2.37434055461, 4],
+      ['00904 - PLACE JOFFRE / ECOLE MILITAIRE', 48.8521362052, 2.30196122721, 5],
+      ['00905 - CONCORDE/BERGES DE SEINE (STATION MOBILE)', 48.86314, 2.31669, 3],
+      ['00906 - GARE DE L\'EST', 48.8764198136, 2.35863006454, 2],
+      ['00907 - WE LOVE GREEN', 48.871668, 2.246229, 1]
+    ];
+
+    function setMarkers(map) {
+      // Adds markers to the map.
+
+      // Marker sizes are expressed as a Size of X,Y where the origin of the image
+      // (0,0) is located in the top left of the image.
+
+      // Origins, anchor positions and coordinates of the marker increase in the X
+      // direction to the right and in the Y direction down.
+      var image = "{% static 'media/green.png' %}";
+
+      // Shapes define the clickable region of the icon. The type defines an HTML
+      // <area> element 'poly' which traces out a polygon as a series of X,Y points.
+      // The final coordinate closes the poly by connecting to the first coordinate.
+      var shape = {
+        coords: [1, 1, 1, 20, 18, 20, 18, 1],
+        type: 'poly'
+      };
+      for (var i = 0; i < stations.length; i++) {
+        var station = stations[i];
+        var marker = new google.maps.Marker({
+          position: {lat: station[1], lng: station[2]},
+          map: map,
+          icon:image,
+          shape:shape,
+          title: station[0],
+          zIndex: station[3]
+        });
+      }
+    }
+
+    function draw_directions(directionsService, directionsDisplay) {
+        directionsService.route({
+            origin: document.getElementById('start').value+"Paris",
+            destination: document.getElementById('end').value+"Paris",
+            travelMode: google.maps.TravelMode.BICYCLING
+        }, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(response);
+                $('#direction-panel').css('display', 'block');
+                $('#direction-panel').html("Durée : "+response.routes[ 0 ].legs[ 0].duration.text+"<br/>"+
+                    "Distance : "+response.routes[ 0 ].legs[ 0].distance.text)
+            } else {
+                $('#direction-panel').css('display', 'block');
+                $('#direction-panel').html('Le calcul de l\'itinéraire a échoué')
+            }
+        });
+
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+
+{% endblock %}
