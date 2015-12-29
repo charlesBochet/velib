@@ -12,3 +12,60 @@ body, html {
     height:100%;
     width: 100%;
 }
+
+#search-block {
+    position:absolute;
+    top:65px;
+    left:15px;
+    width:500px;
+    background-color:rgba(255, 255, 255, 0.5);
+    display:block;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding:5px;
+}
+
+#search-block:hover {
+    background-color:rgba(255, 255, 255, 0.7);
+}
+
+#direction-panel {
+    position:absolute;
+    bottom:15px;
+    right:15px;
+    width:200px;
+    color:white;
+    background-color:#5800a1;
+    padding:10px;
+    display:none;
+}
+
+.map-search-input {
+    margin-bottom:5px;
+}
+
+.map-search-icon {
+    height:20px;
+}
+
+.btn {
+    padding: 14px 24px;
+    border: 0 none;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.btn.sharp {
+  border-radius:0;
+}
+
+.btn.purple {
+    background-color:#5800a1;
+    color:white;
+}
+
+.btn.purple:hover {
+    background-color:#480085;
+}
