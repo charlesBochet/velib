@@ -1,69 +1,26 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% load bootstrap3 %}
-    {% bootstrap_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/map.css' %}" media="all"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}" media="all"/>
-    {% bootstrap_javascript jquery=1 %}
-    <title>Projet Vélib 2.0</title>
-</head>
-<body>
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Projet Vélib 2.0</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="navbar-collapse-1">
-          <form class="navbar-form navbar-left" role="search">
-            <div class="form-group">
-              <input type="text" class="form-control" size="50" placeholder="Rechercher une station">
-            </div>
-            <button type="submit" class="btn btn-default">Go</button>
-          </form>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="{% url "api.views.home" %}">API</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Plus<span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">A propos</a></li>
-                <li><a href="#">Statistiques</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="{% url "api.views.pull_data" %}">Synchroniser</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div id="map"></div>
-    <script type="text/javascript" async defer>
-        var map;
-        function initMap() {
-          map = new google.maps.Map(document.getElementById('map'), {
+{% extends "interface/base.html" %}
+{% block title %}Projet Velib 2.0{% endblock %}
+{% block content %}
+<div id="map"></div>
+<script type="text/javascript" async defer>
+    var map;
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 48.856614, lng: 2.3522219000000177},
             zoom: 13
-          });
-        }
-    </script>
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&callback=initMap">
-    </script>
+        });
 
-    {# Display django.contrib.messages as Bootstrap alerts #}
-    {% bootstrap_messages %}
-</body>
-</html>
+        var myLatLng = {lat: 48.86138, lng: 2.32442};
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: 'Hello World!'
+        });
+    }
+
+
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&callback=initMap">
+</script>
+{% endblock %}
