@@ -148,12 +148,12 @@ def stations_refresh(request, format=None):
         return Response(serializer.data)
     except:
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-    return Response(serializer.data)
 
 
-class StationViewSet(viewsets.ModelViewSet):
+class StationViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    API endpoint that allows groups to be viewed.
     """
-    queryset = Station.objects.all()[:20]
+    queryset = Station.objects.all()
     serializer_class = StationSerializer
+
