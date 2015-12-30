@@ -94,35 +94,27 @@ def get_closest_station_by_coordinates(lat, lng):
     return min_distance
 
 
-class StationViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Station.objects.all()[:20]
-    serializer_class = StationSerializer
-
-
-class RefreshResponse(object):
-    def __init__(self, status, updated_records, issues):
-        self.status = status
-        self.updated_records = updated_records
-        self.issues = issues
-        self.datetime = datetime.now()
-
 @api_view(['GET'])
 def stations_refresh(request, format=None):
     """
     Pulls all velib data from opendata.paris.fr and refresh Velib database.
     """
+    class RefreshResponse(object):
+        def __init__(self, status, updated_records, issues):
+            self.status = status
+            self.updated_records = updated_records
+            self.issues = issues
+            self.datetime = datetime.now()
+
     try:
         session = requests.Session()
         opendata_url = 'http://opendata.paris.fr/api' \
                         '/records/1.0/download/?dataset=stations-velib-disponibilites-en-temps-reel'
         response = session.get(opendata_url, timeout=10)
-        csv_response = io.StringIO(response.text)
+        csv_response = io.StringIO(response.text)  # Decode data for csv parser.
         csv_reader = csv.reader(csv_response, delimiter=';')
-        refresh_count = 0
-        issue_count = 0
+        refresh_count = 0  # Number of records correctly updated.
+        issue_count = 0  # Number of records not updated.
         for row in csv_reader:
             if csv_reader.line_num == 1:
                 pass
@@ -156,6 +148,12 @@ def stations_refresh(request, format=None):
         return Response(serializer.data)
     except:
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-    refresh_response = RefreshResponse(True, 69, 42)
-    serializer = RefreshResponseSerializer(refresh_response)
     return Response(serializer.data)
+
+
+class StationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Station.objects.all()[:20]
+    serializer_class = StationSerializer
