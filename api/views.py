@@ -8,7 +8,6 @@ from datetime import datetime
 
 from django.shortcuts import render
 from django.utils import timezone
-from django.http import HttpResponse
 
 from rest_framework import viewsets
 from rest_framework import status
@@ -16,7 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Station
-from .serializers import StationSerializer, RefreshResponseSerializer
+from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint
 
 
 
@@ -59,39 +58,6 @@ def pull_data(request):
             record.save()
             row_count += 1
     return render(request, 'api/pull_data.html', {'row_count': row_count})
-
-
-def get_station_coordinates(request, lat, lng):
-    """Returns closest opened and non empty velib station from coordinates"""
-    min_distance = get_closest_station_by_coordinates(lat, lng)
-    return HttpResponse(min_distance[2])
-
-
-def get_station_address(request, address):
-    """Returns closest velib station from address"""
-    geolocator = Nominatim()
-    location = geolocator.geocode(address)
-    min_distance = get_closest_station_by_coordinates(location.latitude, location.longitude)
-    return HttpResponse(min_distance[2])
-
-
-def get_closest_station_by_coordinates(lat, lng):
-    """Returns closest opened and non empty velib station from coordinates"""
-    destination_geopoint = (float(lat), float(lng))
-    stations = Station.objects.all()
-    min_distance = (999999999, 999999999, 'Unknown')  # Initialization : min distance is set to infinite
-    for s in stations:  # Compute all distances destination from destination to stations
-        if s.status == 'OPEN' and s.available_bike_stands > 0:
-            station_geopoint = (s.lat, s.lng)
-            distance = vincenty(destination_geopoint, station_geopoint).m
-            if distance < min_distance[1]:
-                min_distance = (s.number, distance, s.address)
-            else:
-                pass
-        else:
-            pass
-
-    return min_distance
 
 
 @api_view(['GET'])
@@ -157,3 +123,34 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
 
+
+def get_closest_available_station(geographicpoint):
+    """Returns closest opened and non empty velib station from a GeographicPoint object."""
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    destination_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    min_distance = (999999999, 999999999)  # Initialization : min distance is set to infinite.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(destination_coordinates, station_coordinates).m
+            if distance < min_distance[1]:
+                min_distance = (s.number, distance)
+            else:
+                pass
+        else:
+            pass
+    return Station.objects.get(number=min_distance[0])
+
+
+@api_view(['GET'])
+def closest_station(request, latitude=None, longitude=None, address=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = StationSerializer(get_closest_available_station(geographicpoint))
+    return Response(serializer.data)
