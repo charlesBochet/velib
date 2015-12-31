@@ -15,13 +15,15 @@ router.register(r'stations', views.StationViewSet)
 urlpatterns = [
     url(r'^$', views.home),
     url(r'^pulldata$', views.pull_data),
-    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^stations/refresh$', views.stations_refresh),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)$', views.closest_station),
+    url(r'^stations/closest/(?P<address>.*)$', views.closest_station),
     ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns += [
+    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^', include(router.urls)),
 ]
 

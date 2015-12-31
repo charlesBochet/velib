@@ -29,3 +29,19 @@ class RefreshResponseSerializer(serializers.Serializer):
     updated_records = serializers.IntegerField()
     issues = serializers.IntegerField()
     datetime = serializers.DateTimeField()
+
+
+class GeographicPoint(object):  # Object to manipulate inputs for closest station and itenerary.
+    def __init__(self, latitude, longitude, address):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = address
+
+
+class GeographicPointSerializer(serializers.Serializer):  # Useless for this version but leaving it here.
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+    address = serializers.CharField(max_length=255, default='')
+
+    def create(self, validated_data):
+        return GeographicPoint(**validated_data)
