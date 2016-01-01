@@ -165,7 +165,14 @@ def closest_station(request, latitude=None, longitude=None, address=None):
 
 
 @api_view(['GET'])
-def closestitenerary(request, origin_latitude=None, origin_longitude=None, origin_address=None,
+def optimal_station(request, latitude=None, longitude=None, address=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = StationSerializer(get_closest_available_station(geographicpoint))
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def closest_itenerary(request, origin_latitude=None, origin_longitude=None, origin_address=None,
                 destination_latitude=None, destination_longitude=None, destination_address=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
@@ -173,3 +180,15 @@ def closestitenerary(request, origin_latitude=None, origin_longitude=None, origi
                           get_closest_available_station(destination_geographicpoint))
     serializer = ItenerarySerializer(itenerary)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def optimal_itenerary(request, origin_latitude=None, origin_longitude=None, origin_address=None,
+                destination_latitude=None, destination_longitude=None, destination_address=None):
+    origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
+    destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+    itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
+                          get_closest_available_station(destination_geographicpoint))
+    serializer = ItenerarySerializer(itenerary)
+    return Response(serializer.data)
+
