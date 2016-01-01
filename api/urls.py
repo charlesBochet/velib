@@ -13,7 +13,7 @@ router.register(r'stations', views.StationViewSet)
 
 
 urlpatterns = [
-    url(r'^$', views.home),
+    url(r'^$', views.api_root),
     # Refresh all velib data.
     url(r'^pulldata$', views.pull_data),
     url(r'^stations/refresh$', views.stations_refresh),
@@ -45,9 +45,3 @@ urlpatterns += [
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^', include(router.urls)),
 ]
-
-
-# On laisse de côté pour le moment, ça va venir avec l'API REST
-#  url(r'^getstation/coordinates/(?P<lat>[+-]?\d?\d\.?\d*)/(?P<lng>[+-]?\d?\d?\d\.?\d*)$',
-#    views.get_station_coordinates),
-# url(r'^get_station/address/(?P<address>.*)$', views.getstation_address)

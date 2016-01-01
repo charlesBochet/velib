@@ -13,6 +13,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from .models import Station
 from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer
@@ -58,6 +59,13 @@ def pull_data(request):
             record.save()
             row_count += 1
     return render(request, 'api/pull_data.html', {'row_count': row_count})
+
+
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+        'stations': reverse('station-list', request=request, format=format)
+    })
 
 
 @api_view(['GET'])
