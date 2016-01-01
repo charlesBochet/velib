@@ -45,3 +45,16 @@ class GeographicPointSerializer(serializers.Serializer):  # Useless for this ver
 
     def create(self, validated_data):
         return GeographicPoint(**validated_data)
+
+
+class Itenerary(object):
+    def __init__(self, origin, destination):
+        self.origin = origin
+        self.destination = destination
+
+
+class ItenerarySerializer(serializers.Serializer):
+    origin = StationSerializer()
+    destination = StationSerializer()
+
+
