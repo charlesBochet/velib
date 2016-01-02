@@ -109,18 +109,18 @@ def get_closest_available_station(geographicpoint):
         pass
     destination_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
     stations = Station.objects.all()
-    min_distance = (999999999, 999999999)  # Initialization : min distance is set to infinite.
+    min_station = (999999999, 999999999)  # Initialization : min distance is set to infinite.
     for s in stations:  # Compute all distances destination from destination to stations.
         if s.status == 'OPEN' and s.available_bike_stands > 0:
             station_coordinates = (s.lat, s.lng)
             distance = vincenty(destination_coordinates, station_coordinates).m
-            if distance < min_distance[1]:
-                min_distance = (s.number, distance)
+            if distance < min_station[1]:
+                min_station = (s.number, distance)
             else:
                 pass
         else:
             pass
-    return Station.objects.get(number=min_distance[0])
+    return Station.objects.get(number=min_station[0])
 
 
 @api_view(['GET'])

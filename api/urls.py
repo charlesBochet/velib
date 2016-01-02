@@ -14,8 +14,8 @@ router.register(r'stations', views.StationViewSet)
 
 urlpatterns = [
     url(r'^$', views.api_root),
+
     # Refresh all velib data.
-    url(r'^pulldata$', views.pull_data),
     url(r'^stations/refresh$', views.stations_refresh),
 
     # Get closest station from a point defined by coordinates or address.
