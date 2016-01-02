@@ -14,7 +14,6 @@ router.register(r'stations', views.StationViewSet)
 
 urlpatterns = [
     url(r'^$', views.api_root),
-    url(r'^docs/', include('rest_framework_swagger.urls')),
 
     # Refresh all velib data.
     url(r'^stations/refresh$', views.stations_refresh),
@@ -67,4 +66,5 @@ urlpatterns = format_suffix_patterns(urlpatterns)  # enables output format can b
 urlpatterns += [
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^', include(router.urls)),
+    url(r'^docs/', include('rest_framework_swagger.urls')),
 ]
