@@ -38,15 +38,6 @@ class GeographicPoint(object):  # Object to manipulate inputs for closest statio
         self.address = address
 
 
-class GeographicPointSerializer(serializers.Serializer):  # Useless for this version but leaving it here.
-    latitude = serializers.FloatField()
-    longitude = serializers.FloatField()
-    address = serializers.CharField(max_length=255, default='')
-
-    def create(self, validated_data):
-        return GeographicPoint(**validated_data)
-
-
 class Itenerary(object):
     def __init__(self, origin, destination):
         self.origin = origin

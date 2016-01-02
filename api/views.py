@@ -27,40 +27,6 @@ def home(request):
     return render(request, 'api/home_api.html', locals())
 
 
-def pull_data(request):
-    """Call to refresh velib data from opendata.paris.fr"""
-    session = requests.Session()
-    opendata_url = 'http://opendata.paris.fr/api' \
-                   '/records/1.0/download/?dataset=stations-velib-disponibilites-en-temps-reel'
-    response = session.get(opendata_url, timeout=10)
-    csv_response = io.StringIO(response.text)
-    csv_reader = csv.reader(csv_response, delimiter=';')
-    row_count = 0
-    for row in csv_reader:
-        if csv_reader.line_num == 1:
-            pass
-        else:
-            record = Station(number=int(row[0]),
-                             name=row[1],
-                             address=row[2],
-                             lat=float(row[3].split(', ')[0]),
-                             lng=float(row[3].split(', ')[1]),
-                             banking=bool(row[4]),
-                             bonus=bool(row[5]),
-                             status=row[6],
-                             contract_name=row[7],
-                             bike_stands=int(row[8]),
-                             available_bike_stands=int(row[9]),
-                             available_bikes=int(row[10]),
-                             optimal_filling=int(int(row[9])/2),
-                             last_update=row[11],
-                             modified_date=timezone.now()
-                             )
-            record.save()
-            row_count += 1
-    return render(request, 'api/pull_data.html', {'row_count': row_count})
-
-
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
