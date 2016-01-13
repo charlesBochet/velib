@@ -122,8 +122,9 @@ def get_closest_available_station(geographicpoint):
             pass
     return Station.objects.get(number=min_station[0])
 
+
 def get_optimal_nearby_station(geographicpoint, radius=200):
-    """Returns the optimal velib station inside a specified radius (200 m by default )from a GeographicPoint object."""
+    """Returns the optimal velib station inside a specified radius (200 m by default) from a GeographicPoint object."""
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
         geolocator = Nominatim()
         location = geolocator.geocode(geographicpoint.address)
@@ -145,14 +146,15 @@ def get_optimal_nearby_station(geographicpoint, radius=200):
                 pass
         else:
             pass
-    sorted_nearby_stations = sorted(nearby_stations, key= lambda station: station[4])
-    opt_station = sorted_nearby_stations[0] #The optimal station by default is the first listed least occupied station
-    for s in sorted_nearby_stations: #If there are more than one least occupied stations, the optimal one is the closest one)
+    sorted_nearby_stations = sorted(nearby_stations, key=lambda station: station[4])
+    opt_station = sorted_nearby_stations[0] # The optimal station by default is the first listed least occupied station
+    for s in sorted_nearby_stations: # More than one least occupied stations -> the optimal one is the closest one
         if s[1] < opt_station[1] and s[4] == opt_station[4]:
             opt_station = s
         else:
             pass
     return Station.objects.get(number=opt_station[0])
+
 
 @api_view(['GET'])
 def closest_station(request, latitude=None, longitude=None, address=None):
