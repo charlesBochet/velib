@@ -186,10 +186,8 @@ def optimal_itenerary(request, origin_latitude=None, origin_longitude=None, orig
                 destination_latitude=None, destination_longitude=None, destination_address=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
-    distance = vincenty((origin_geographicpoint.latitude, origin_geographicpoint.longitude),
-                        (destination_geographicpoint.latitude, destination_geographicpoint.longitude)).m
     itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
-                          get_optimal_nearby_station(destination_geographicpoint, distance/10))
+                          get_optimal_nearby_station(destination_geographicpoint))
     serializer = ItenerarySerializer(itenerary)
     return Response(serializer.data)
 
