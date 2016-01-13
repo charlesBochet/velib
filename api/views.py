@@ -139,13 +139,14 @@ def get_optimal_nearby_station(geographicpoint, radius=200):
             station_coordinates = (s.lat, s.lng)
             distance = vincenty(destination_coordinates, station_coordinates).m
             if distance < radius:
-                nearby_stations.append((s.number, distance, s.bike_stands, s.available_bike_stands, 1 - s.available_bike_stands/s.bike_stands))
+                nearby_stations.append((s.number, distance, s.bike_stands, s.available_bike_stands,
+                                        1 - s.available_bike_stands/s.bike_stands))
             else:
                 pass
         else:
             pass
     sorted_nearby_stations = sorted(nearby_stations, key= lambda station: station[4])
-    opt_station = sorted_nearby_stations[0] #The optimal station by default is the least occupied
+    opt_station = sorted_nearby_stations[0] #The optimal station by default is the first listed least occupied station
     for s in sorted_nearby_stations: #If there are more than one least occupied stations, the optimal one is the closest one)
         if s[1] < opt_station[1] and s[4] == opt_station[4]:
             opt_station = s
@@ -183,7 +184,8 @@ def optimal_itenerary(request, origin_latitude=None, origin_longitude=None, orig
                 destination_latitude=None, destination_longitude=None, destination_address=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
-    distance = vincenty((origin_latitude, origin_longitude, origin_address), (destination_latitude, destination_longitude, destination_address)).m
+    distance = vincenty((origin_geographicpoint.latitude, origin_geographicpoint.longitude),
+                        (destination_geographicpoint.latitude, destination_geographicpoint.longitude)).m
     itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
                           get_optimal_nearby_station(destination_geographicpoint, distance/10))
     serializer = ItenerarySerializer(itenerary)
