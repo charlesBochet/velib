@@ -133,7 +133,6 @@ def get_optimal_nearby_station(geographicpoint, radius=200):
         pass
     destination_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
     stations = Station.objects.all()
-    min_station = (999999999, 999999999)  # Initialization : min distance is set to infinite.
     nearby_stations = [] # Initialization of the array containing the velib stations inside the radius
     for s in stations:  # Compute all distances destination from destination to stations.
         if s.status == 'OPEN' and s.available_bike_stands > 0:
@@ -152,7 +151,7 @@ def get_optimal_nearby_station(geographicpoint, radius=200):
             opt_station = s
         else:
             pass
-    return Station.objects.get(number=min_station[0])
+    return Station.objects.get(number=opt_station[0])
 
 @api_view(['GET'])
 def closest_station(request, latitude=None, longitude=None, address=None):
