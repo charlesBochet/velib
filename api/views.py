@@ -122,6 +122,37 @@ def get_closest_available_station(geographicpoint):
             pass
     return Station.objects.get(number=min_station[0])
 
+def get_optimal_nearby_station(geographicpoint, radius=200):
+    """Returns the optimal velib station inside a specified radius (200 m by default )from a GeographicPoint object."""
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    destination_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    min_station = (999999999, 999999999)  # Initialization : min distance is set to infinite.
+    nearby_stations = [] # Initialization of the array containing the velib stations inside the radius
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(destination_coordinates, station_coordinates).m
+            if distance < radius:
+                nearby_stations.append((s.number, distance, s.bike_stands, s.available_bike_stands, 1 - s.available_bike_stands/s.bike_stands))
+            else:
+                pass
+        else:
+            pass
+    sorted_nearby_stations = sorted(nearby_stations, key= lambda station: station[4])
+    opt_station = sorted_nearby_stations[0] #The optimal station by default is the least occupied
+    for s in sorted_nearby_stations: #If there are more than one least occupied stations, the optimal one is the closest one)
+        if s[1] < opt_station[1] and s[4] == opt_station[4]:
+            opt_station = s
+        else:
+            pass
+    return Station.objects.get(number=min_station[0])
 
 @api_view(['GET'])
 def closest_station(request, latitude=None, longitude=None, address=None):
@@ -133,7 +164,7 @@ def closest_station(request, latitude=None, longitude=None, address=None):
 @api_view(['GET'])
 def optimal_station(request, latitude=None, longitude=None, address=None):
     geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = StationSerializer(get_closest_available_station(geographicpoint))
+    serializer = StationSerializer(get_optimal_nearby_station(geographicpoint))
     return Response(serializer.data)
 
 
@@ -153,8 +184,9 @@ def optimal_itenerary(request, origin_latitude=None, origin_longitude=None, orig
                 destination_latitude=None, destination_longitude=None, destination_address=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+    distance = vincenty((origin_latitude, origin_longitude, origin_address), (destination_latitude, destination_longitude, destination_address)).m
     itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
-                          get_closest_available_station(destination_geographicpoint))
+                          get_optimal_nearby_station(destination_geographicpoint, distance/10))
     serializer = ItenerarySerializer(itenerary)
     return Response(serializer.data)
 
