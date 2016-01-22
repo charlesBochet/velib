@@ -73,7 +73,7 @@ def stations_refresh(request, format=None):
                                      bike_stands=int(row[8]),
                                      available_bike_stands=int(row[9]),
                                      available_bikes=int(row[10]),
-                                     optimal_filling=int(int(row[9])/2),
+                                     optimal_filling=(int(row[10])-((int(row[8]))/2))/((int(row[8]))/2),
                                      last_update=row[11],
                                      modified_date=timezone.now()
                                      )

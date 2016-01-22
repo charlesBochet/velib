@@ -16,7 +16,7 @@ class Station(models.Model):
     bike_stands = models.PositiveSmallIntegerField(default=0)
     available_bike_stands = models.PositiveSmallIntegerField(default=0)
     available_bikes = models.PositiveSmallIntegerField(default=0)
-    optimal_filling = models.PositiveIntegerField(default=0)
+    optimal_filling = models.FloatField()
     last_update = models.DateTimeField()
     modified_date = models.DateTimeField(default=timezone.now())
 
