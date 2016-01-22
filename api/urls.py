@@ -49,11 +49,18 @@ urlpatterns = [
 
 
     # Get closest opened stations from a point defined by coordinates or address for dropoff (with available stands).
-#    url(r'^stations/closest/pick/(?P<address>[\s\w]+)/?$', views.closest_station_drop),
-#    url(r'^stations/closest/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
-#    url(r'^stations/closest/pick/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
-#    url(r'^stations/closest/pick/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.closest_station_drop),
-#    url(r'^stations/closest/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<address>[\s\w]+)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
+
+    url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
+    url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
+
 
 
 
