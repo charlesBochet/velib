@@ -56,5 +56,5 @@ class Itenerary(object):
 
 
 class ItenerarySerializer(serializers.Serializer):
-    origin = StationSerializer()
-    destination = StationSerializer()
+    origin = DistancePointSerializer()
+    destination = DistancePointSerializer()

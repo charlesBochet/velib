@@ -36,6 +36,8 @@ urlpatterns = [
 
 
     # Get closest opened stations from a point defined by coordinates or address for pickup (with available bikes).
+    # Parameter r : defines a circle in which stations closest stations are searched.
+    # Parameter n : number of results returned in ranked order (from closest to farthest).
     url(r'^stations/closest/pick/(?P<address>[\s\w]+)/?$', views.closest_station_pick),
     url(r'^stations/closest/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_pick),
     url(r'^stations/closest/pick/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.closest_station_pick),
@@ -51,6 +53,8 @@ urlpatterns = [
 
 
     # Get closest opened stations from a point defined by coordinates or address for dropoff (with available stands).
+    # Parameter r : defines a circle in which stations closest stations are searched.
+    # Parameter n : number of results returned in ranked order (from closest to farthest).
     url(r'^stations/closest/drop/(?P<address>[\s\w]+)/?$', views.closest_station_drop),
     url(r'^stations/closest/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
     url(r'^stations/closest/drop/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.closest_station_drop),
@@ -65,6 +69,8 @@ urlpatterns = [
 
 
     # Get over-optimal opened stations from a point defined by coordinates or address for pickup.
+    # Parameter r : defines a circle in which stations closest stations are searched.
+    # Parameter n : number of results returned in ranked order (from closest to farthest).
     url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/?$', views.optimal_station_pick),
     url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_pick),
     url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_pick),
@@ -79,6 +85,8 @@ urlpatterns = [
 
 
     # Get under-optimal opened stations from a point defined by coordinates or address for drop-off.
+    # Parameter r : defines a circle in which stations closest stations are searched.
+    # Parameter n : number of results returned in ranked order (from closest to farthest).
     url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/?$', views.optimal_station_drop),
     url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
     url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
@@ -90,6 +98,45 @@ urlpatterns = [
     url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
     url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
     url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
+
+
+    # Get itenerary with closest point logic from two points defined by either coordinates or address.
+    # Coordinates-Coordinates
+    url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary_2),
+    # Address-Coordinates
+    url(r'^stations/itenerary/closest/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary_2),
+    # Coordinates-Address
+    url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary_2),
+    # Address-Address
+    url(r'^stations/itenerary/closest/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary_2),
+
+
+    # Get itenerary with optimal point logic from two points defined by either coordinates or address.
+    # Parameter r : defines a circle in which stations optimal station is searched.
+    # Coordinates-Coordinates
+    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary_2),
+    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+    # Address-Coordinates
+    url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary_2),
+    url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+    # Coordinates-Address
+    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary_2),
+    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
+        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+    # Address-Address
+    url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary_2),
+    url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
+        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
 
 
     # Get optimal station from a point defined by coordinates or address.
