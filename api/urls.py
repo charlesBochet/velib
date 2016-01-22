@@ -64,18 +64,32 @@ urlpatterns = [
     url(r'^stations/closest/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.closest_station_drop),
 
 
-    # Get under-optimal opened stations from a point defined by coordinates or address for dropoff.
-    url(r'^stations/optimal/under/(?P<address>[\s\w]+)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.optimal_station_under),
+    # Get over-optimal opened stations from a point defined by coordinates or address for pickup.
+    url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.optimal_station_pick),
 
-    url(r'^stations/optimal/under/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_under),
-    url(r'^stations/optimal/under/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.optimal_station_under),
+    url(r'^stations/optimal/pick/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_pick),
+    url(r'^stations/optimal/pick/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.optimal_station_pick),
+
+
+    # Get under-optimal opened stations from a point defined by coordinates or address for drop-off.
+    url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
+
+    url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_station_drop),
+    url(r'^stations/optimal/drop/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.optimal_station_drop),
 
 
     # Get optimal station from a point defined by coordinates or address.
