@@ -8,6 +8,7 @@ from datetime import datetime
 
 from django.shortcuts import render
 from django.utils import timezone
+from django.db import connection, transaction
 
 from rest_framework import viewsets
 from rest_framework import status
@@ -38,7 +39,10 @@ def api_root(request, format=None):
 @api_view(['GET'])
 def stations_refresh(request, format=None):
     """
-    Pulls all velib data from opendata.paris.fr and refresh Velib database.
+    Refresh velib station database.
+    :param request:
+    :param format:
+    :return:
     """
     class RefreshResponse(object):
         def __init__(self, status, updated_records, issues):
@@ -89,6 +93,15 @@ def stations_refresh(request, format=None):
         return Response(serializer.data)
     except:
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def stations_log(request, format=None):
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
+    response = {'Log successful'}
+    return Response(response, status=status.HTTP_200_OK)
+
 
 
 class StationViewSet(viewsets.ReadOnlyModelViewSet):

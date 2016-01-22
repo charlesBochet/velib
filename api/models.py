@@ -22,5 +22,13 @@ class Station(models.Model):
 
     def __str__(self):
         """Method returning a simple description of the object"""
-
         return self.name
+
+
+class StationLog(models.Model):
+    number = models.IntegerField()
+    status = models.CharField(max_length=6)
+    available_bike_stands = models.PositiveSmallIntegerField(default=0)
+    available_bikes = models.PositiveSmallIntegerField(default=0)
+    optimal_criterion = models.FloatField()
+    modified_date = models.DateTimeField()

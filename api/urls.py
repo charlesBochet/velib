@@ -18,6 +18,9 @@ urlpatterns = [
     # Refresh all velib data.
     url(r'^stations/refresh$', views.stations_refresh),
 
+    #Log Stations
+    url(r'^stations/log$', views.stations_log),
+
     # Get closest opened stations from a point defined by address or coordinates.
     # Parameter r : defines a circle in which stations closest stations are searched.
     # Parameter n : number of results returned in ranked order (from closest to farthest).
