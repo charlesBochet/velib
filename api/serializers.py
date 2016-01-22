@@ -19,7 +19,7 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
                   'bike_stands',
                   'available_bike_stands',
                   'available_bikes',
-                  'optimal_filling',
+                  'optimal_criterion',
                   'last_update',
                   'modified_date')
 
