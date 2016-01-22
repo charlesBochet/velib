@@ -16,7 +16,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from .models import Station
-from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer
+from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer,\
+    DistancePoint, DistancePointSerializer
 
 
 
@@ -123,6 +124,56 @@ def get_closest_available_station(geographicpoint):
     return Station.objects.get(number=min_station[0])
 
 
+def get_closest_available_station_2(geographicpoint, radius, number):  # By default radius=200m and number=infinite
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN':
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: DistancePoint.distance)
+    return distancepoint_list[:int(number)]
+
+
+def get_closest_available_station_pick(geographicpoint, radius, number):  # By default radius=200m and number=infinite
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN':
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: DistancePoint.distance)
+    return distancepoint_list[:int(number)]
+
+
 def get_optimal_nearby_station(geographicpoint, radius=200):
     """Returns the optimal velib station inside a specified radius (200 m by default) from a GeographicPoint object."""
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
@@ -160,6 +211,19 @@ def get_optimal_nearby_station(geographicpoint, radius=200):
 def closest_station(request, latitude=None, longitude=None, address=None, format=None):
     geographicpoint = GeographicPoint(latitude, longitude, address)
     serializer = StationSerializer(get_closest_available_station(geographicpoint))
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def closest_station_2(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_closest_available_station_2(geographicpoint, radius, number), many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def closest_station_pick(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_closest_available_station_2(geographicpoint, radius, number), many=True)
     return Response(serializer.data)
 
 
