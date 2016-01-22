@@ -161,7 +161,7 @@ def get_closest_available_station_pick(geographicpoint, radius, number):  # By d
     stations = Station.objects.all()
     distancepoint_list = []  # List containing all stations in the circle with distance to point.
     for s in stations:  # Compute all distances destination from destination to stations.
-        if s.status == 'OPEN':
+        if s.status == 'OPEN' and s.available_bikes > 0:
             station_coordinates = (s.lat, s.lng)
             distance = vincenty(geographicpoint_coordinates, station_coordinates).m
             if distance <= int(radius):
