@@ -24,18 +24,18 @@ urlpatterns = [
     # Get closest opened stations from a point defined by address or coordinates.
     # Parameter r : defines a circle in which stations closest stations are searched.
     # Parameter n : number of results returned in ranked order (from closest to farthest).
-    url(r'^stations/closest/(?P<address>[\s\w]+)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<address>[\s\w]+)/n=(?P<number>n=\d*)/r=(?P<radius>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.closest_station_2),
+    url(r'^stations/closest/(?P<address>[\s\w]+)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<address>[\s\w]+)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<address>[\s\w]+)/n=(?P<number>\d*)/?$', views.closest_station),
 
 
-    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.closest_station_2),
-    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.closest_station_2),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/n=(?P<number>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/r=(?P<radius>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.closest_station),
+    url(r'^stations/closest/(?P<latitude>[+-]?\d?\d\.?\d*),(?P<longitude>[+-]?\d?\d?\d\.?\d*)/n=(?P<number>\d*)/?$', views.closest_station),
 
 
     # Get closest opened stations from a point defined by coordinates or address for pickup (with available bikes).
@@ -106,79 +106,40 @@ urlpatterns = [
     # Get itenerary with closest point logic from two points defined by either coordinates or address.
     # Coordinates-Coordinates
     url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary),
     # Address-Coordinates
     url(r'^stations/itenerary/closest/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.closest_itenerary),
     # Coordinates-Address
     url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary_2),
+        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary),
     # Address-Address
     url(r'^stations/itenerary/closest/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary_2),
+        r'(?P<destination_address>[\s\w]+)/?$', views.closest_itenerary),
 
 
     # Get itenerary with optimal point logic from two points defined by either coordinates or address.
     # Parameter r : defines a circle in which stations optimal station is searched.
     # Coordinates-Coordinates
     url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary),
     url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary),
     # Address-Coordinates
     url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/?$', views.optimal_itenerary),
     url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)/r=(?P<radius>\d*)/?$', views.optimal_itenerary),
     # Coordinates-Address
     url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary),
     url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary),
     # Address-Address
     url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary_2),
+        r'(?P<destination_address>[\s\w]+)/?$', views.optimal_itenerary),
     url(r'^stations/itenerary/optimal/(?P<origin_address>[\s\w]+)/'
-        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary_2),
-
-
-    # Get optimal station from a point defined by coordinates or address.
-#    url(r'^stations/optimal/(?P<latitude>[+-]?\d?\d\.?\d*),'
-#        r'(?P<longitude>[+-]?\d?\d?\d\.?\d*)$', views.optimal_station),
-#    url(r'^stations/optimal/(?P<address>.*)/$', views.optimal_station),
-#
-#    # Get itenerary with closest point logic from two points defined by either coordinates or address.
-#    # coordinates/coordinates
-#    url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-#        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)$',
-#        views.closest_itenerary),
-#    # address/coordinates
-#    url(r'^stations/itenerary/closest/(?P<origin_address>.*)/'
-#        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)$',
-#        views.closest_itenerary),
-#    # coordinates/address
-#    url(r'^stations/itenerary/closest/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-#        r'(?P<destination_address>.*)/$', views.closest_itenerary),
-#    # address/address
-#    url(r'^stations/itenerary/closest/(?P<origin_address>.*)/'
-#        r'(?P<destination_address>.*)/$', views.closest_itenerary),
-#
-#    # Get itenerary with optimal point logic from two points defined by either coordinates or address.
-#    # coordinates/coordinates
-#    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-#        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)$',
-#        views.optimal_itenerary),
-#    # address/coordinates
-#    url(r'^stations/itenerary/optimal/(?P<origin_address>.*)/'
-#        r'(?P<destination_latitude>[+-]?\d?\d\.?\d*),(?P<destination_longitude>[+-]?\d?\d?\d\.?\d*)$',
-#        views.optimal_itenerary),
-#    # coordinates/address
-#    url(r'^stations/itenerary/optimal/(?P<origin_latitude>[+-]?\d?\d\.?\d*),(?P<origin_longitude>[+-]?\d?\d?\d\.?\d*)/'
-#        r'(?P<destination_address>.*)/$', views.optimal_itenerary),
-#    # address/address
-#    url(r'^stations/itenerary/optimal/(?P<origin_address>.*)/'
-#        r'(?P<destination_address>.*)/$', views.optimal_itenerary),
-
+        r'(?P<destination_address>[\s\w]+)/r=(?P<radius>\d*)/?$', views.optimal_itenerary),
 
     ]
 

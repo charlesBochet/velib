@@ -38,13 +38,13 @@ class GeographicPoint(object):  # Object to manipulate inputs for closest statio
         self.address = address
 
 
-class DistancePoint(object):
+class DistanceStation(object):
     def __init__(self, distance, station):
         self.distance = distance
         self.station = station
 
 
-class DistancePointSerializer(serializers.Serializer):
+class DistanceStationSerializer(serializers.Serializer):
     distance = serializers.FloatField()
     station = StationSerializer()
 
@@ -56,5 +56,5 @@ class Itenerary(object):
 
 
 class ItenerarySerializer(serializers.Serializer):
-    origin = DistancePointSerializer()
-    destination = DistancePointSerializer()
+    origin = DistanceStationSerializer()
+    destination = DistanceStationSerializer()
