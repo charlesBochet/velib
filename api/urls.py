@@ -23,8 +23,8 @@ urlpatterns = [
 
     #API Calls
     url(r'^stations/closest/?$', views.closest_station),
-    url(r'^stations/closest/pick/?$', views.closest_station),
-    url(r'^stations/closest/drop/?$', views.closest_station),
+    url(r'^stations/closest/pick/?$', views.closest_station_pick),
+    url(r'^stations/closest/drop/?$', views.closest_station_drop),
     url(r'^stations/optimal/pick/?$', views.optimal_station_pick),
     url(r'^stations/optimal/drop/?$', views.optimal_station_drop),
     url(r'^stations/itinerary/closest/?$', views.closest_itinerary),

@@ -98,7 +98,7 @@ def get_closest_station(option, geographicpoint, radius=999999999, number=1):
                     pass
             else:
                 pass
-    elif option == 'pick':  # Pick
+    elif option == 'pick':
         for s in stations:  # Compute all distances destination from destination to stations.
             if s.status == 'OPEN' and s.available_bikes > 0:
                 station_coordinates = (s.lat, s.lng)
@@ -204,7 +204,7 @@ def stations_log(request, format=None):
     """
     cursor = connection.cursor()
     cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
-    response = {'Log successful'}
+    response = {'True'}
     return Response(response, status=status.HTTP_200_OK)
 
 
@@ -245,12 +245,12 @@ def closest_station(request, format=None):
             paramType: query
             type: string
         -   name: n
-            description: n
+            description: number of results returned
             required: false
             paramType: query
             type: integer
-        -   name: radius
-            description: number
+        -   name: r
+            description: radius of search area
             required: false
             paramType: query
             type: integer
@@ -296,12 +296,12 @@ def closest_station_pick(request, format=None):
             paramType: query
             type: string
         -   name: n
-            description: n
+            description: number of results returned
             required: false
             paramType: query
             type: integer
-        -   name: radius
-            description: number
+        -   name: r
+            description: radius of search ares
             required: false
             paramType: query
             type: integer
@@ -346,12 +346,12 @@ def closest_station_drop(request, format=None):
             paramType: query
             type: string
         -   name: n
-            description: n
+            description: number of results returned
             required: false
             paramType: query
             type: integer
-        -   name: radius
-            description: number
+        -   name: r
+            description: radius of search area
             required: false
             paramType: query
             type: integer
@@ -397,12 +397,12 @@ def optimal_station_pick(request, format=None):
             paramType: query
             type: string
         -   name: n
-            description: n
+            description: number of results returned
             required: false
             paramType: query
             type: integer
-        -   name: radius
-            description: number
+        -   name: r
+            description: radius of search area
             required: false
             paramType: query
             type: integer
@@ -447,12 +447,12 @@ def optimal_station_drop(request, format=None):
             paramType: query
             type: string
         -   name: n
-            description: radius
+            description: number of results returned
             required: false
             paramType: query
             type: integer
-        -   name: radius
-            description: number
+        -   name: r
+            description: radius of search area
             required: false
             paramType: query
             type: integer
@@ -479,29 +479,44 @@ def closest_itinerary(request, format=None):
     # Django rest swagger
 
     parameters:
-        -   name: latitude
-            description: latitude
+        -   name: a-latitude
+            description: origin point latitude
             required: false
             paramType: query
             type: number
-        -   name: longitude
-            description: longitude
+        -   name: a-longitude
+            description: origin point longitude
             required: false
             paramType: query
             type: number
-        -   name: address
-            description: address (alphanumeric and whitespace only)
+        -   name: a-address
+            description: origin point address (alphanumeric and whitespace only)
+            required: false
+            paramType: query
+            type: string
+        -   name: b-latitude
+            description: destination point latitude
+            required: false
+            paramType: query
+            type: number
+        -   name: b-longitude
+            description: destination point longitude
+            required: false
+            paramType: query
+            type: number
+        -   name: b-address
+            description: destination point address (alphanumeric and whitespace only)
             required: false
             paramType: query
             type: string
 
-    response_serializer: DistanceStationSerializer
+    response_serializer: ItenerarySerializer
     """
-    origin_latitude = request.query_params.get('a-lat', None)
-    origin_longitude = request.query_params.get('b-lng', None)
+    origin_latitude = request.query_params.get('a-latitude', None)
+    origin_longitude = request.query_params.get('b-longitude', None)
     origin_address = request.query_params.get('a-address', None)
-    destination_latitude = request.query_params.get('b-lat', None)
-    destination_longitude = request.query_params.get('b-lng', None)
+    destination_latitude = request.query_params.get('b-latitude', None)
+    destination_longitude = request.query_params.get('b-longitude', None)
     destination_address = request.query_params.get('b-address', None)
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
@@ -514,7 +529,7 @@ def closest_itinerary(request, format=None):
 @api_view(['GET'])
 def optimal_itinerary(request, format=None):
     """
-    Returns stations 2 stations for itinerary following under and over optimal station logic.
+    Returns stations 2 stations for itinerary following under and over optimal station log.
     Geographic points are defined by either address or (latitude,longitude).\n
     If both are passed, only (latitude,longitude) is used.\n
     Default radius value is 300m.
@@ -522,34 +537,49 @@ def optimal_itinerary(request, format=None):
     # Django rest swagger
 
     parameters:
-        -   name: latitude
-            description: latitude
+        -   name: a-latitude
+            description: origin point latitude
             required: false
             paramType: query
             type: number
-        -   name: longitude
-            description: longitude
+        -   name: a-longitude
+            description: origin point longitude
             required: false
             paramType: query
             type: number
-        -   name: address
-            description: address (alphanumeric and whitespace only)
+        -   name: a-address
+            description: origin point address (alphanumeric and whitespace only)
             required: false
             paramType: query
             type: string
-        -   name: radius
-            description: radius
+        -   name: b-latitude
+            description: destination point latitude
+            required: false
+            paramType: query
+            type: number
+        -   name: b-longitude
+            description: destination point longitude
+            required: false
+            paramType: query
+            type: number
+        -   name: b-address
+            description: destination point address (alphanumeric and whitespace only)
+            required: false
+            paramType: query
+            type: string
+        -   name: r
+            description: radius of search area
             required: false
             paramType: query
             type: integer
 
-    response_serializer: DistanceStationSerializer
+    response_serializer: ItenerarySerializer
     """
-    origin_latitude = request.query_params.get('a-lat', None)
-    origin_longitude = request.query_params.get('b-lng', None)
+    origin_latitude = request.query_params.get('a-latitude', None)
+    origin_longitude = request.query_params.get('b-longitude', None)
     origin_address = request.query_params.get('a-address', None)
-    destination_latitude = request.query_params.get('b-lat', None)
-    destination_longitude = request.query_params.get('b-lng', None)
+    destination_latitude = request.query_params.get('b-latitude', None)
+    destination_longitude = request.query_params.get('b-longitude', None)
     destination_address = request.query_params.get('b-address', None)
     radius = request.query_params.get('r', default_walk)
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
