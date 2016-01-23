@@ -8,6 +8,7 @@ from datetime import datetime
 
 from django.shortcuts import render
 from django.utils import timezone
+from django.db import connection
 
 from rest_framework import viewsets
 from rest_framework import status
@@ -16,7 +17,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from .models import Station
-from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer
+from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer,\
+    DistancePoint, DistancePointSerializer
 
 
 
@@ -37,7 +39,9 @@ def api_root(request, format=None):
 @api_view(['GET'])
 def stations_refresh(request, format=None):
     """
-    Pulls all velib data from opendata.paris.fr and refresh Velib database.
+    Refresh velib station database.
+    ---
+    # Django Rest Swagger
     """
     class RefreshResponse(object):
         def __init__(self, status, updated_records, issues):
@@ -72,7 +76,7 @@ def stations_refresh(request, format=None):
                                      bike_stands=int(row[8]),
                                      available_bike_stands=int(row[9]),
                                      available_bikes=int(row[10]),
-                                     optimal_filling=int(int(row[9])/2),
+                                     optimal_criterion=(int(row[10])-((int(row[8]))/2))/((int(row[8]))/2),
                                      last_update=row[11],
                                      modified_date=timezone.now()
                                      )
@@ -90,6 +94,20 @@ def stations_refresh(request, format=None):
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+def stations_log(request, format=None):
+    """
+    Log station information in secondary log database.
+    ---
+    # Django Rest Swagger
+    """
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
+    response = {'Log successful'}
+    return Response(response, status=status.HTTP_200_OK)
+
+
+
 class StationViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows groups to be viewed.
@@ -99,7 +117,6 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 def get_closest_available_station(geographicpoint):
-    """Returns closest opened and non empty velib station from a GeographicPoint object."""
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
         geolocator = Nominatim()
         location = geolocator.geocode(geographicpoint.address)
@@ -123,23 +140,228 @@ def get_closest_available_station(geographicpoint):
     return Station.objects.get(number=min_station[0])
 
 
+def get_closest_available_station_2(geographicpoint, radius=999999999, number=1):
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN':
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: DistancePoint.distance)
+    return distancepoint_list[:int(number)]
+
+
+def get_closest_available_station_pick(geographicpoint, radius=999999999, number=1):
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bikes > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: DistancePoint.distance)
+    return distancepoint_list[:int(number)]
+
+
+def get_closest_available_station_drop(geographicpoint, radius=999999999, number=1):
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: DistancePoint.distance)
+    return distancepoint_list[:int(number)]
+
+
+def get_optimal_nearby_station(geographicpoint, radius=200):
+    """Returns the optimal velib station inside a specified radius (200 m by default) from a GeographicPoint object."""
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    destination_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    nearby_stations = [] # Initialization of the array containing the velib stations inside the radius
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(destination_coordinates, station_coordinates).m
+            if distance < radius:
+                nearby_stations.append((s.number, distance, s.bike_stands, s.available_bike_stands,
+                                        1 - s.available_bike_stands/s.bike_stands))
+            else:
+                pass
+        else:
+            pass
+    sorted_nearby_stations = sorted(nearby_stations, key=lambda station: station[4])
+    opt_station = sorted_nearby_stations[0] # The optimal station by default is the first listed least occupied station
+    for s in sorted_nearby_stations: # More than one least occupied stations -> the optimal one is the closest one
+        if s[1] < opt_station[1] and s[4] == opt_station[4]:
+            opt_station = s
+        else:
+            pass
+    return Station.objects.get(number=opt_station[0])
+
+
+def get_optimal_pick(geographicpoint, radius, number):
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bikes > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: (-DistancePoint.station.optimal_criterion, DistancePoint.distance))
+    return distancepoint_list[:int(number)]
+
+
+def get_optimal_drop(geographicpoint, radius, number):
+    if geographicpoint.latitude is None or geographicpoint.longitude is None:
+        geolocator = Nominatim()
+        location = geolocator.geocode(geographicpoint.address)
+        geographicpoint.latitude = location.latitude
+        geographicpoint.longitude = location.longitude
+    else:
+        pass
+    geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
+    stations = Station.objects.all()
+    distancepoint_list = []  # List containing all stations in the circle with distance to point.
+    for s in stations:  # Compute all distances destination from destination to stations.
+        if s.status == 'OPEN' and s.available_bike_stands > 0:
+            station_coordinates = (s.lat, s.lng)
+            distance = vincenty(geographicpoint_coordinates, station_coordinates).m
+            if distance <= int(radius):
+                distancepoint_list.append(DistancePoint(distance, s))
+            else:
+                pass
+        else:
+            pass
+    distancepoint_list.sort(key=lambda DistancePoint: (DistancePoint.station.optimal_criterion, DistancePoint.distance))
+    return distancepoint_list[:int(number)]
+
+
 @api_view(['GET'])
-def closest_station(request, latitude=None, longitude=None, address=None):
+def closest_station(request, latitude=None, longitude=None, address=None, format=None):
     geographicpoint = GeographicPoint(latitude, longitude, address)
     serializer = StationSerializer(get_closest_available_station(geographicpoint))
     return Response(serializer.data)
 
 
 @api_view(['GET'])
-def optimal_station(request, latitude=None, longitude=None, address=None):
+def closest_station_2(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    """
+    Return closest station.
+    ---
+    # Django Rest Swagger
+
+    response_serializer: DistancePointSerializer
+    parameters_strategy: merge
+    parameters:
+        -   name: address
+            required: true
+            paramType: path
+            description: Address
+    """
     geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = StationSerializer(get_closest_available_station(geographicpoint))
+    serializer = DistancePointSerializer(get_closest_available_station_2(geographicpoint, radius, number), many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def closest_station_pick(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_closest_available_station_pick(geographicpoint, radius, number), many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def closest_station_drop(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_closest_available_station_drop(geographicpoint, radius, number), many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def optimal_station(request, latitude=None, longitude=None, address=None, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = StationSerializer(get_optimal_nearby_station(geographicpoint))
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def optimal_station_drop(request, latitude=None, longitude=None, address=None, radius=300, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_optimal_drop(geographicpoint, radius, number), many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def optimal_station_pick(request, latitude=None, longitude=None, address=None, radius=300, number=1, format=None):
+    geographicpoint = GeographicPoint(latitude, longitude, address)
+    serializer = DistancePointSerializer(get_optimal_pick(geographicpoint, radius, number), many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def closest_itenerary(request, origin_latitude=None, origin_longitude=None, origin_address=None,
-                destination_latitude=None, destination_longitude=None, destination_address=None):
+                destination_latitude=None, destination_longitude=None, destination_address=None, format=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
     itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
@@ -150,11 +372,32 @@ def closest_itenerary(request, origin_latitude=None, origin_longitude=None, orig
 
 @api_view(['GET'])
 def optimal_itenerary(request, origin_latitude=None, origin_longitude=None, origin_address=None,
-                destination_latitude=None, destination_longitude=None, destination_address=None):
+                destination_latitude=None, destination_longitude=None, destination_address=None, format=None):
     origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
     destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
     itenerary = Itenerary(get_closest_available_station(origin_geographicpoint),
-                          get_closest_available_station(destination_geographicpoint))
+                          get_optimal_nearby_station(destination_geographicpoint))
     serializer = ItenerarySerializer(itenerary)
     return Response(serializer.data)
 
+
+@api_view(['GET'])
+def closest_itenerary_2(request, origin_latitude=None, origin_longitude=None, origin_address=None,
+                destination_latitude=None, destination_longitude=None, destination_address=None, format=None):
+    origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
+    destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+    itenerary = Itenerary(get_closest_available_station_pick(origin_geographicpoint)[0],
+                          get_closest_available_station_drop(destination_geographicpoint)[0])
+    serializer = ItenerarySerializer(itenerary)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def optimal_itenerary_2(request, origin_latitude=None, origin_longitude=None, origin_address=None,
+                destination_latitude=None, destination_longitude=None, destination_address=None, radius=300, format=None):
+    origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
+    destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+    itenerary = Itenerary(get_optimal_pick(origin_geographicpoint, radius, 1)[0],
+                          get_optimal_drop(destination_geographicpoint, radius, 1)[0])
+    serializer = ItenerarySerializer(itenerary)
+    return Response(serializer.data)

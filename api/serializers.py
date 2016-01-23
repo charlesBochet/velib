@@ -19,7 +19,7 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
                   'bike_stands',
                   'available_bike_stands',
                   'available_bikes',
-                  'optimal_filling',
+                  'optimal_criterion',
                   'last_update',
                   'modified_date')
 
@@ -38,6 +38,17 @@ class GeographicPoint(object):  # Object to manipulate inputs for closest statio
         self.address = address
 
 
+class DistancePoint(object):
+    def __init__(self, distance, station):
+        self.distance = distance
+        self.station = station
+
+
+class DistancePointSerializer(serializers.Serializer):
+    distance = serializers.FloatField()
+    station = StationSerializer()
+
+
 class Itenerary(object):
     def __init__(self, origin, destination):
         self.origin = origin
@@ -45,5 +56,5 @@ class Itenerary(object):
 
 
 class ItenerarySerializer(serializers.Serializer):
-    origin = StationSerializer()
-    destination = StationSerializer()
+    origin = DistancePointSerializer()
+    destination = DistancePointSerializer()

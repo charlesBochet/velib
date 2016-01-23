@@ -58,3 +58,6 @@ db.sqlite3
 local_settings.py
 
 #migrations_file
+
+#OSX files
+.DS_store
