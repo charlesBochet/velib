@@ -8,7 +8,7 @@ from datetime import datetime
 
 from django.shortcuts import render
 from django.utils import timezone
-from django.db import connection, transaction
+from django.db import connection
 
 from rest_framework import viewsets
 from rest_framework import status
@@ -40,9 +40,8 @@ def api_root(request, format=None):
 def stations_refresh(request, format=None):
     """
     Refresh velib station database.
-    :param request:
-    :param format:
-    :return:
+    ---
+    # Django Rest Swagger
     """
     class RefreshResponse(object):
         def __init__(self, status, updated_records, issues):
@@ -97,6 +96,11 @@ def stations_refresh(request, format=None):
 
 @api_view(['GET'])
 def stations_log(request, format=None):
+    """
+    Log station information in secondary log database.
+    ---
+    # Django Rest Swagger
+    """
     cursor = connection.cursor()
     cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
     response = {'Log successful'}
@@ -113,7 +117,6 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 def get_closest_available_station(geographicpoint):
-    """Returns closest opened and non empty velib station from a GeographicPoint object."""
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
         geolocator = Nominatim()
         location = geolocator.geocode(geographicpoint.address)
@@ -304,6 +307,19 @@ def closest_station(request, latitude=None, longitude=None, address=None, format
 
 @api_view(['GET'])
 def closest_station_2(request, latitude=None, longitude=None, address=None, radius=999999999, number=1, format=None):
+    """
+    Return closest station.
+    ---
+    # Django Rest Swagger
+
+    response_serializer: DistancePointSerializer
+    parameters_strategy: merge
+    parameters:
+        -   name: address
+            required: true
+            paramType: path
+            description: Address
+    """
     geographicpoint = GeographicPoint(latitude, longitude, address)
     serializer = DistancePointSerializer(get_closest_available_station_2(geographicpoint, radius, number), many=True)
     return Response(serializer.data)
