@@ -116,7 +116,7 @@
     }
 
     function draw_directions(directionsService, directionsDisplay, apiAddress) {
-        $.getJSON(apiAddress+'/itenerary/optimal/'+document.getElementById('start').value+"/"+document.getElementById('end').value)
+        $.getJSON(apiAddress+'/itenerary/optimal/?a-address='+document.getElementById('start').value+"&b-address="+document.getElementById('end').value)
         .done(function(data) {
             var startPoint = new google.maps.LatLng(data.origin.lat, data.origin.lng);
             var endPoint = new google.maps.LatLng(data.destination.lat, data.destination.lng)
