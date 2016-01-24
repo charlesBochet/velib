@@ -119,7 +119,7 @@
         $.getJSON(apiAddress+'/itenerary/optimal/?a-address='+document.getElementById('start').value+"&b-address="+document.getElementById('end').value)
         .done(function(data) {
             var startPoint = new google.maps.LatLng(data.origin.lat, data.origin.lng);
-            var endPoint = new google.maps.LatLng(data.destination.lat, data.destination.lng)
+            var endPoint = new google.maps.LatLng(data.destination.lat, data.destination.lng);
             directionsService.route({
                 origin: startPoint,
                 destination: endPoint,
