@@ -1,147 +1,52 @@
 {% extends "interface/base.html" %}
 {% load static %}
+
 {% block title %}Projet Velib 2.0{% endblock %}
+
 {% block content %}
 <div id="map"></div>
 <div id="search-block">
-  <div class="form-group map-search-input">
-    <div class="input-group">
-      <input type="text" id="start" class="form-control" placeholder="Départ" aria-describedby="basic-addon1">
-      <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/origine.png' %}" /></span>
+    <div class="form-group map-search-input">
+        <div class="input-group">
+            <input type="text" id="start" class="form-control" placeholder="Départ" aria-describedby="basic-addon1">
+            <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/origine.png' %}" /></span>
+        </div>
     </div>
-  </div>
-  <div class="form-group map-search-input">
-    <div class="input-group">
-      <input type="text" id="end" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
-      <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/destination.png' %}" /></span>
+    <div class="form-group map-search-input">
+        <div class="input-group">
+            <input type="text" id="end" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+            <span class="input-group-addon" id="basic-addon1"><img class="map-search-icon" src="{% static 'media/destination.png' %}" /></span>
+        </div>
     </div>
-  </div>
-  <button id="submit-search" class="btn sharp pull-right purple">Calculer l'itinéraire</button>
+    <div class="inline-block">
+        <input id="radius-slider" data-slider-id='radius-slider' type="text" data-slider-min="10" data-slider-max="1000" data-slider-step="10" data-slider-value="300"/>
+    </div>
+    <div class="inline-block">
+        <button id="submit-search" class="btn sharp pull-right purple">Calculer l'itinéraire</button>
+    </div>
 </div>
 <div id="direction-panel">
-
 </div>
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&signed_in=true&libraries=places">
-</script>
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&signed_in=true&libraries=places"></script>
+<script type="text/javascript" src="{% static 'js/map_util.js' %}"></script>
 <script type="text/javascript">
-
-    var autocompleteStart;
-    var autocompleteEnd;
-
-    function initialize() {
-        var directionsService = new google.maps.DirectionsService;
-        var SWCornerLocation = new google.maps.LatLng(48.959755, 2.529341);
-        var NECornerLocation = new google.maps.LatLng(48.775562, 2.143934);
-        var autocompleteBounds = new google.maps.LatLngBounds(SWCornerLocation, NECornerLocation);
-        autocompleteStart = new google.maps.places.Autocomplete(
-            document.getElementById('start'),
-                { types: ['geocode'],
-                  bounds: autocompleteBounds,
-                  componentRestrictions: { country: 'fr' }}
-        );
-
-
-        autocompleteEnd = new google.maps.places.Autocomplete(
-            document.getElementById('end'),
-                { types: ['geocode'] }
-        );
-
-        var map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: 48.856614, lng: 2.3522219000000177},
-            zoom: 13,
-            disableDefaultUI: true
-        });
-        var directionsDisplay = new google.maps.DirectionsRenderer({
-            draggable: false,
-            map: map,
-            suppressBicyclingLayer: true,
-        });
-
-        var apiAddress = "api/stations";
-        var on_search = function() {
-            $('#direction-panel').css('display', 'none');
-            draw_directions(directionsService, directionsDisplay, apiAddress);
-        };
-          document.getElementById('submit-search').addEventListener('click', on_search);
-
-        var myLatLng = {lat: 48.86138, lng: 2.32442};
-        var marker = new google.maps.Marker({
-            position: myLatLng,
-            map: map,
-            title: 'Hello World!'
-        });
-
-        $.getJSON(apiAddress
-          //    , {
-          //param: "mount rainier",}
-          )
-        .done(function(data) {
-            stations = [];
-            $.each(data, function (i, item) {
-              stations.push([item.address, item.lat, item.lng, 1]);
-            });
-            setMarkers(map, stations);
-        });
-    }
-
-    function setMarkers(map, stations) {
-      // Adds markers to the map.
-
-      // Marker sizes are expressed as a Size of X,Y where the origin of the image
-      // (0,0) is located in the top left of the image.
-
-      // Origins, anchor positions and coordinates of the marker increase in the X
-      // direction to the right and in the Y direction down.
-      var image = "{% static 'media/green.png' %}";
-
-      // Shapes define the clickable region of the icon. The type defines an HTML
-      // <area> element 'poly' which traces out a polygon as a series of X,Y points.
-      // The final coordinate closes the poly by connecting to the first coordinate.
-      //var shape = {
-      //  coords: [1, 1, 1, 20, 18, 20, 18, 1],
-      //  type: 'poly'
-      //};
-      for (var i = 0; i < stations.length; i++) {
-        var station = stations[i];
-        var marker = new google.maps.Marker({
-          position: {lat: station[1], lng: station[2]},
-          map: map,
-          icon:image,
-          title: station[0],
-          zIndex: station[3]
-        });
-      }
-    }
-
-    function draw_directions(directionsService, directionsDisplay, apiAddress) {
-        $.getJSON(apiAddress+'/itinerary/optimal/?a-address='+document.getElementById('start').value+"&b-address="+document.getElementById('end').value)
-        .done(function(data) {
-            var startPoint = new google.maps.LatLng(data.origin.lat, data.origin.lng);
-            var endPoint = new google.maps.LatLng(data.destination.lat, data.destination.lng);
-            directionsService.route({
-                origin: startPoint,
-                destination: endPoint,
-                travelMode: google.maps.TravelMode.BICYCLING
-            }, function(response, status) {
-                if (status === google.maps.DirectionsStatus.OK) {
-                  directionsDisplay.setDirections(response);
-                    $('#direction-panel').css('display', 'block');
-                    $('#direction-panel').html("<b>Station de départ :</b> "+data.origin.address+"<br />" +
-                                                "<b>Station d'arrivée : </b>"+data.destination.address+"<br />" +
-                                                "<b>Durée : </b>"+response.routes[ 0 ].legs[ 0].duration.text+"<br/>"+
-                                                 "<b>Distance : </b>"+response.routes[ 0 ].legs[ 0].distance.text)
-                } else {
-                    $('#direction-panel').css('display', 'block');
-                    $('#direction-panel').html('Le calcul de l\'itinéraire a échoué')
-                }
-            });
-        });
-    }
-
-    google.maps.event.addDomListener(window, 'load', initialize);
-
+    $('#radius-slider').slider({
+        formatter: function(value) {
+            return 'Stations dans un rayon de : ' + value + " m";
+        },
+        tooltip_position:'bottom'
+    });
+    images_marker = ['{% static 'media/0.png' %}',
+                    '{% static 'media/10.png' %}',
+                    '{% static 'media/20.png' %}',
+                    '{% static 'media/30.png' %}',
+                    '{% static 'media/40.png' %}',
+                    '{% static 'media/50.png' %}',
+                    '{% static 'media/60.png' %}',
+                    '{% static 'media/70.png' %}',
+                    '{% static 'media/80.png' %}',
+                    '{% static 'media/90.png' %}',
+                    '{% static 'media/100.png' %}'];
+    google.maps.event.addDomListener(window, 'load', initItinerary);
 </script>
-
 {% endblock %}
