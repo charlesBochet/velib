@@ -24,6 +24,14 @@ from .serializers import StationSerializer, RefreshResponseSerializer, Geographi
 default_walk = 300
 
 
+class UndefinedPoint(Exception):
+    pass
+
+
+class NonResolvedAddress(Exception):
+    pass
+
+
 def refresh_stations():
     class RefreshResponse(object):
         def __init__(self, status, updated_records, issues):
@@ -80,8 +88,11 @@ def get_closest_station(option, geographicpoint, radius=999999999, number=1):
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
         geolocator = Nominatim()
         location = geolocator.geocode(geographicpoint.address)
-        geographicpoint.latitude = location.latitude
-        geographicpoint.longitude = location.longitude
+        try:
+            geographicpoint.latitude = location.latitude
+            geographicpoint.longitude = location.longitude
+        except AttributeError:
+            raise NonResolvedAddress
     else:
         pass
     geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
@@ -131,8 +142,11 @@ def get_optimal_station(option, geographicpoint, radius=default_walk, number=1):
     if geographicpoint.latitude is None or geographicpoint.longitude is None:
         geolocator = Nominatim()
         location = geolocator.geocode(geographicpoint.address)
-        geographicpoint.latitude = location.latitude
-        geographicpoint.longitude = location.longitude
+        try:
+            geographicpoint.latitude = location.latitude
+            geographicpoint.longitude = location.longitude
+        except AttributeError:
+            raise NonResolvedAddress
     else:
         pass
     geographicpoint_coordinates = (geographicpoint.latitude, geographicpoint.longitude)
@@ -202,10 +216,13 @@ def stations_log(request, format=None):
     Log station information in secondary log database.
 
     """
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
-    response = {'True'}
-    return Response(response, status=status.HTTP_200_OK)
+    try:
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
+        response = {'True'}
+        return Response(response, status=status.HTTP_200_OK)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class StationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -257,15 +274,23 @@ def closest_station(request, format=None):
 
     response_serializer: DistanceStationSerializer
     """
-    latitude = request.query_params.get('latitude', None)
-    longitude = request.query_params.get('longitude', None)
-    address = request.query_params.get('address', None)
-    radius = request.query_params.get('r', 999999999)
-    number = request.query_params.get('n', 1)
-    geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = DistanceStationSerializer(get_closest_station('case0', geographicpoint, radius, number), many=True)
-    return Response(serializer.data)
-
+    try:
+        latitude = request.query_params.get('latitude', None)
+        longitude = request.query_params.get('longitude', None)
+        address = request.query_params.get('address', None)
+        radius = request.query_params.get('r', 999999999)
+        number = request.query_params.get('n', 1)
+        if address is None and (latitude is None or longitude is None):
+            raise UndefinedPoint
+        geographicpoint = GeographicPoint(latitude, longitude, address)
+        serializer = DistanceStationSerializer(get_closest_station('case0', geographicpoint, radius, number), many=True)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def closest_station_pick(request, format=None):
@@ -308,14 +333,23 @@ def closest_station_pick(request, format=None):
 
     response_serializer: DistanceStationSerializer
     """
-    latitude = request.query_params.get('latitude', None)
-    longitude = request.query_params.get('longitude', None)
-    address = request.query_params.get('address', None)
-    radius = request.query_params.get('r', 999999999)
-    number = request.query_params.get('n', 1)
-    geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = DistanceStationSerializer(get_closest_station('pick', geographicpoint, radius, number), many=True)
-    return Response(serializer.data)
+    try:
+        latitude = request.query_params.get('latitude', None)
+        longitude = request.query_params.get('longitude', None)
+        address = request.query_params.get('address', None)
+        radius = request.query_params.get('r', 999999999)
+        number = request.query_params.get('n', 1)
+        if address is None and (latitude is None or longitude is None):
+            raise UndefinedPoint
+        geographicpoint = GeographicPoint(latitude, longitude, address)
+        serializer = DistanceStationSerializer(get_closest_station('pick', geographicpoint, radius, number), many=True)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def closest_station_drop(request, format=None):
@@ -358,14 +392,23 @@ def closest_station_drop(request, format=None):
 
     response_serializer: DistanceStationSerializer
     """
-    latitude = request.query_params.get('latitude', None)
-    longitude = request.query_params.get('longitude', None)
-    address = request.query_params.get('address', None)
-    radius = request.query_params.get('r', 999999999)
-    number = request.query_params.get('n', 1)
-    geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = DistanceStationSerializer(get_closest_station('drop', geographicpoint, radius, number), many=True)
-    return Response(serializer.data)
+    try:
+        latitude = request.query_params.get('latitude', None)
+        longitude = request.query_params.get('longitude', None)
+        address = request.query_params.get('address', None)
+        radius = request.query_params.get('r', 999999999)
+        number = request.query_params.get('n', 1)
+        if address is None and (latitude is None or longitude is None):
+            raise UndefinedPoint
+        geographicpoint = GeographicPoint(latitude, longitude, address)
+        serializer = DistanceStationSerializer(get_closest_station('drop', geographicpoint, radius, number), many=True)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -409,14 +452,24 @@ def optimal_station_pick(request, format=None):
 
     response_serializer: DistanceStationSerializer
     """
-    latitude = request.query_params.get('latitude', None)
-    longitude = request.query_params.get('longitude', None)
-    address = request.query_params.get('address', None)
-    radius = request.query_params.get('r', default_walk)
-    number = request.query_params.get('n', 1)
-    geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = DistanceStationSerializer(get_optimal_station('pick', geographicpoint, radius, number), many=True)
-    return Response(serializer.data)
+    try:
+        latitude = request.query_params.get('latitude', None)
+        longitude = request.query_params.get('longitude', None)
+        address = request.query_params.get('address', None)
+        radius = request.query_params.get('r', default_walk)
+        number = request.query_params.get('n', 1)
+        if address is None and (latitude is None or longitude is None):
+            raise UndefinedPoint
+        geographicpoint = GeographicPoint(latitude, longitude, address)
+        serializer = DistanceStationSerializer(get_optimal_station('pick', geographicpoint, radius, number), many=True)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['GET'])
 def optimal_station_drop(request, format=None):
@@ -459,14 +512,23 @@ def optimal_station_drop(request, format=None):
 
     response_serializer: DistanceStationSerializer
     """
-    latitude = request.query_params.get('latitude', None)
-    longitude = request.query_params.get('longitude', None)
-    address = request.query_params.get('address', None)
-    radius = request.query_params.get('r', default_walk)
-    number = request.query_params.get('n', 1)
-    geographicpoint = GeographicPoint(latitude, longitude, address)
-    serializer = DistanceStationSerializer(get_optimal_station('drop', geographicpoint, radius, number), many=True)
-    return Response(serializer.data)
+    try:
+        latitude = request.query_params.get('latitude', None)
+        longitude = request.query_params.get('longitude', None)
+        address = request.query_params.get('address', None)
+        radius = request.query_params.get('r', default_walk)
+        number = request.query_params.get('n', 1)
+        if address is None and (latitude is None or longitude is None):
+            raise UndefinedPoint
+        geographicpoint = GeographicPoint(latitude, longitude, address)
+        serializer = DistanceStationSerializer(get_optimal_station('drop', geographicpoint, radius, number), many=True)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -512,18 +574,29 @@ def closest_itinerary(request, format=None):
 
     response_serializer: ItenerarySerializer
     """
-    origin_latitude = request.query_params.get('a-latitude', None)
-    origin_longitude = request.query_params.get('b-longitude', None)
-    origin_address = request.query_params.get('a-address', None)
-    destination_latitude = request.query_params.get('b-latitude', None)
-    destination_longitude = request.query_params.get('b-longitude', None)
-    destination_address = request.query_params.get('b-address', None)
-    origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
-    destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
-    itinerary = Itenerary(get_closest_station('pick', origin_geographicpoint)[0],
-                          get_closest_station('drop', destination_geographicpoint)[0])
-    serializer = ItenerarySerializer(itinerary)
-    return Response(serializer.data)
+    try:
+        origin_latitude = request.query_params.get('a-latitude', None)
+        origin_longitude = request.query_params.get('b-longitude', None)
+        origin_address = request.query_params.get('a-address', None)
+        destination_latitude = request.query_params.get('b-latitude', None)
+        destination_longitude = request.query_params.get('b-longitude', None)
+        destination_address = request.query_params.get('b-address', None)
+        if origin_address is None and (origin_latitude is None or origin_longitude is None):
+            raise UndefinedPoint
+        if destination_address is None and (destination_latitude is None or destination_longitude is None):
+            raise UndefinedPoint
+        origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
+        destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+        itinerary = Itenerary(get_closest_station('pick', origin_geographicpoint)[0],
+                              get_closest_station('drop', destination_geographicpoint)[0])
+        serializer = ItenerarySerializer(itinerary)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -575,16 +648,27 @@ def optimal_itinerary(request, format=None):
 
     response_serializer: ItenerarySerializer
     """
-    origin_latitude = request.query_params.get('a-latitude', None)
-    origin_longitude = request.query_params.get('b-longitude', None)
-    origin_address = request.query_params.get('a-address', None)
-    destination_latitude = request.query_params.get('b-latitude', None)
-    destination_longitude = request.query_params.get('b-longitude', None)
-    destination_address = request.query_params.get('b-address', None)
-    radius = request.query_params.get('r', default_walk)
-    origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
-    destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
-    itinerary = Itenerary(get_optimal_station('pick', origin_geographicpoint, radius, 1)[0],
-                          get_optimal_station('drop', destination_geographicpoint, radius, 1)[0])
-    serializer = ItenerarySerializer(itinerary)
-    return Response(serializer.data)
+    try:
+        origin_latitude = request.query_params.get('a-latitude', None)
+        origin_longitude = request.query_params.get('b-longitude', None)
+        origin_address = request.query_params.get('a-address', None)
+        destination_latitude = request.query_params.get('b-latitude', None)
+        destination_longitude = request.query_params.get('b-longitude', None)
+        destination_address = request.query_params.get('b-address', None)
+        radius = request.query_params.get('r', default_walk)
+        if origin_address is None and (origin_latitude is None or origin_longitude is None):
+            raise UndefinedPoint
+        if destination_address is None and (destination_latitude is None or destination_longitude is None):
+            raise UndefinedPoint
+        origin_geographicpoint = GeographicPoint(origin_latitude, origin_longitude, origin_address)
+        destination_geographicpoint = GeographicPoint(destination_latitude, destination_longitude, destination_address)
+        itinerary = Itenerary(get_optimal_station('pick', origin_geographicpoint, radius, 1)[0],
+                              get_optimal_station('drop', destination_geographicpoint, radius, 1)[0])
+        serializer = ItenerarySerializer(itinerary)
+        return Response(serializer.data)
+    except UndefinedPoint:
+        return Response({'Undefined geographical point'}, status=status.HTTP_400_BAD_REQUEST)
+    except NonResolvedAddress:
+        return Response({'Address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
