@@ -8,5 +8,5 @@ def home(request):
 
 
 def statusmap(request):
-    """Home page view"""
+    """Status Map page view"""
     return render(request, 'interface/statusMap.html', locals())

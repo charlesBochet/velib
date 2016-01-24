@@ -31,9 +31,10 @@
 <script type="text/javascript" src="{% static 'js/map_util.js' %}"></script>
 <script type="text/javascript">
     $('#radius-slider').slider({
-	formatter: function(value) {
-		return 'Stations dans un rayon de : ' + value + " m";
-	}
+        formatter: function(value) {
+            return 'Stations dans un rayon de : ' + value + " m";
+        },
+        tooltip_position:'bottom'
     });
     images_marker = ['{% static 'media/0.png' %}',
                     '{% static 'media/10.png' %}',
