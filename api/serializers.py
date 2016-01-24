@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from .models import Station
 
+from datetime import datetime
+
 
 class StationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -22,6 +24,14 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
                   'optimal_criterion',
                   'last_update',
                   'modified_date')
+
+
+class RefreshResponse(object):
+    def __init__(self, status, updated_records, issues):
+        self.status = status
+        self.updated_records = updated_records
+        self.issues = issues
+        self.datetime = datetime.now()
 
 
 class RefreshResponseSerializer(serializers.Serializer):

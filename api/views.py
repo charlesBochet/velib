@@ -17,8 +17,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from .models import Station
-from .serializers import StationSerializer, RefreshResponseSerializer, GeographicPoint, Itenerary, ItenerarySerializer,\
-    DistanceStation, DistanceStationSerializer
+from .serializers import StationSerializer, RefreshResponse, RefreshResponseSerializer, GeographicPoint, Itenerary,\
+    ItenerarySerializer, DistanceStation, DistanceStationSerializer
 
 
 default_walk = 300
@@ -33,13 +33,6 @@ class NonResolvedAddress(Exception):
 
 
 def refresh_stations():
-    class RefreshResponse(object):
-        def __init__(self, status, updated_records, issues):
-            self.status = status
-            self.updated_records = updated_records
-            self.issues = issues
-            self.datetime = datetime.now()
-
     session = requests.Session()
     opendata_url = 'http://opendata.paris.fr/api' \
                    '/records/1.0/download/?dataset=stations-velib-disponibilites-en-temps-reel'
@@ -78,7 +71,6 @@ def refresh_stations():
     else:
         refresh_response = RefreshResponse(False, refresh_count, issue_count)
     return refresh_response
-
 
 
 def get_closest_station(option, geographicpoint, radius=999999999, number=1):
@@ -179,8 +171,6 @@ def get_optimal_station(option, geographicpoint, radius=default_walk, number=1):
     return distancestation_list[:int(number)]
 
 
-
-
 ########################################################################################################################
 ####################################          API    CALLLS         ####################################################
 ########################################################################################################################
@@ -207,7 +197,7 @@ def stations_refresh(request, format=None):
         serializer = RefreshResponseSerializer(refresh_response)
         return Response(serializer.data)
     except:
-        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+        return Response({'False'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
@@ -216,13 +206,13 @@ def stations_log(request, format=None):
     Log station information in secondary log database.
 
     """
-    try:
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO api_stationlog SELECT (SELECT max(number) FROM api_station)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
-        response = {'True'}
-        return Response(response, status=status.HTTP_200_OK)
-    except:
-        return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #try:
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO api_stationlog SELECT (SELECT ifnull(max(number),1) FROM api_stationlog)+number,number,status,available_bike_stands,available_bikes,optimal_criterion,modified_date FROM api_station;")
+    response = {'True'}
+    return Response(response, status=status.HTTP_200_OK)
+    #except:
+    #    return Response({'False'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class StationViewSet(viewsets.ReadOnlyModelViewSet):
