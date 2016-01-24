@@ -5,4 +5,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.home),
+    url(r'^status$', views.statusmap),
 ]

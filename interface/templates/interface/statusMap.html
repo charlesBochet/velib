@@ -1,0 +1,24 @@
+{% extends "interface/base.html" %}
+{% load static %}
+
+{% block title %}Projet Velib 2.0{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP5KJKZjumsSquNDPv9nAlhtCEI0AVzo8&signed_in=true&libraries=places"></script>
+<script type="text/javascript" src="{% static 'js/map_util.js' %}"></script>
+<script type="text/javascript">
+    images_marker = ['{% static 'media/0.png' %}',
+                    '{% static 'media/10.png' %}',
+                    '{% static 'media/20.png' %}',
+                    '{% static 'media/30.png' %}',
+                    '{% static 'media/40.png' %}',
+                    '{% static 'media/50.png' %}',
+                    '{% static 'media/60.png' %}',
+                    '{% static 'media/70.png' %}',
+                    '{% static 'media/80.png' %}',
+                    '{% static 'media/90.png' %}',
+                    '{% static 'media/100.png' %}'];
+    google.maps.event.addDomListener(window, 'load', initStatusMap);
+</script>
+{% endblock %}
