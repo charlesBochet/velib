@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from .models import Station
 
+from datetime import datetime
+
 
 class StationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -24,6 +26,14 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
                   'modified_date')
 
 
+class RefreshResponse(object):
+    def __init__(self, status, updated_records, issues):
+        self.status = status
+        self.updated_records = updated_records
+        self.issues = issues
+        self.datetime = datetime.now()
+
+
 class RefreshResponseSerializer(serializers.Serializer):
     status = serializers.BooleanField()
     updated_records = serializers.IntegerField()
@@ -38,13 +48,13 @@ class GeographicPoint(object):  # Object to manipulate inputs for closest statio
         self.address = address
 
 
-class DistancePoint(object):
+class DistanceStation(object):
     def __init__(self, distance, station):
         self.distance = distance
         self.station = station
 
 
-class DistancePointSerializer(serializers.Serializer):
+class DistanceStationSerializer(serializers.Serializer):
     distance = serializers.FloatField()
     station = StationSerializer()
 
@@ -56,5 +66,5 @@ class Itenerary(object):
 
 
 class ItenerarySerializer(serializers.Serializer):
-    origin = DistancePointSerializer()
-    destination = DistancePointSerializer()
+    origin = DistanceStationSerializer()
+    destination = DistanceStationSerializer()
