@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from api.models import Station
 from api.views import refresh_stations
 from rest_framework.test import APIRequestFactory
@@ -39,3 +39,21 @@ class StationTest(TestCase):
                         last_update="2016-01-24T19:17:50Z",
                         modified_date="2016-01-24T19:26:28.424Z")
         self.assertEqual(str(station_test), "00901 - PORT SOLFERINO (STATION MOBILE)")
+
+########################################################################################################################
+####################################           Tests vues           ####################################################
+########################################################################################################################
+
+class ViewsTest(TestCase):
+    def setUp(self):
+        self.Client = Client()
+
+    def Test_vue(self):
+        response = self.Client.get('/stations/closest/')
+        self.assertEqual(response.status_code, 200)
+########################################################################################################################
+####################################           Tests API            ####################################################
+########################################################################################################################
+
+
+
