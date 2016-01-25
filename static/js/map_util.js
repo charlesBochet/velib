@@ -134,17 +134,12 @@ function draw_directions(directionsService, directionsDisplay, apiAddress) {
     .done(function(data) {
         var startPoint = new google.maps.LatLng(data.origin.station.lat, data.origin.station.lng);
         var endPoint = new google.maps.LatLng(data.destination.station.lat, data.destination.station.lng);
-        waypts = [];
-        waypts.push({location: startPoint, stopover: true});
-        waypts.push({location: endPoint, stopover: true});
 
         // request Google Maps itinerary
         directionsService.route({
-            origin: document.getElementById('start').value,
-            destination: document.getElementById('end').value,
-            travelMode: google.maps.TravelMode.BICYCLING,
-            waypoints:waypts,
-            optimizeWaypoints: true
+            origin: startPoint,
+            destination: endPoint,
+            travelMode: google.maps.TravelMode.BICYCLING
         }, function(response, status) {
             if (status === google.maps.DirectionsStatus.OK) {
                 //Display itinerary on map
@@ -154,8 +149,8 @@ function draw_directions(directionsService, directionsDisplay, apiAddress) {
                 $('#direction-panel').css('display', 'block');
                 $('#direction-panel').html("<b>Station de départ :</b> "+data.origin.station.address+"<br />" +
                                             "<b>Station d'arrivée : </b>"+data.destination.station.address+"<br />" +
-                                            "<b>Durée de station à station : </b>"+response.routes[0].legs[1].duration.text+"<br/>"+
-                                             "<b>Distance de station à station : </b>"+response.routes[0].legs[1].distance.text);
+                                            "<b>Durée de station à station : </b>"+response.routes[0].legs[0].duration.text+"<br/>"+
+                                             "<b>Distance de station à station : </b>"+response.routes[0].legs[0].distance.text);
 
                 geocoder.geocode( { 'address': document.getElementById('start').value,}, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
