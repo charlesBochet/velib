@@ -4,10 +4,14 @@ var autocompleteEnd;
 var apiAddress = "api/stations";
 var markers = []; //Map markers array
 var map = loadMap(); //Construct map view
+var geocoder;
+
 
 // Function drawing map view port with itinerary forms
 function initItinerary() {
     /***********LOADING GOOGLE MAP *********/
+
+    geocoder = new google.maps.Geocoder();
 
     //Setting Bounds for Autocomplete (doesn't work properly)
     var SWCornerLocation = new google.maps.LatLng(48.959755, 2.529341);
@@ -130,6 +134,7 @@ function draw_directions(directionsService, directionsDisplay, apiAddress) {
     .done(function(data) {
         var startPoint = new google.maps.LatLng(data.origin.station.lat, data.origin.station.lng);
         var endPoint = new google.maps.LatLng(data.destination.station.lat, data.destination.station.lng);
+
         // request Google Maps itinerary
         directionsService.route({
             origin: startPoint,
@@ -144,8 +149,51 @@ function draw_directions(directionsService, directionsDisplay, apiAddress) {
                 $('#direction-panel').css('display', 'block');
                 $('#direction-panel').html("<b>Station de départ :</b> "+data.origin.station.address+"<br />" +
                                             "<b>Station d'arrivée : </b>"+data.destination.station.address+"<br />" +
-                                            "<b>Durée : </b>"+response.routes[0].legs[0].duration.text+"<br/>"+
-                                             "<b>Distance : </b>"+response.routes[0].legs[0].distance.text)
+                                            "<b>Durée de station à station : </b>"+response.routes[0].legs[0].duration.text+"<br/>"+
+                                             "<b>Distance de station à station : </b>"+response.routes[0].legs[0].distance.text);
+
+                geocoder.geocode( { 'address': document.getElementById('start').value,}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var start_marker = new google.maps.Marker({
+                            map: map,
+                            icon:images_marker[11],
+                            position: results[0].geometry.location
+                        });
+                        markers.push(start_marker)
+                    } else {
+                        $('#direction-panel').css('display', 'block');
+                        $('#direction-panel').html('La résolution d\'adresse a échoué');
+                    }
+                });
+
+                var start_station_marker = new google.maps.Marker({
+                    map: map,
+                    icon:images_marker[11],
+                    position: startPoint,
+                    zIndex: 0
+                });
+
+                geocoder.geocode( { 'address': document.getElementById('end').value,}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var end_marker = new google.maps.Marker({
+                            map: map,
+                            icon:images_marker[12],
+                            position: results[0].geometry.location
+                        });
+                        markers.push(end_marker)
+                    } else {
+                        $('#direction-panel').css('display', 'block');
+                        $('#direction-panel').html('La résolution d\'adresse a échoué');
+                    }
+                });
+
+                var end_station_marker = new google.maps.Marker({
+                    map: map,
+                    icon:images_marker[12],
+                    position: endPoint,
+                    zIndex: 0
+                });
+
 
                 //Display optimal stations in radius
                 $.getJSON(apiAddress+"/optimal/pick/?address="+document.getElementById('start').value+"&r="+$('input#radius-slider').attr('data-value')+"&n=20")
