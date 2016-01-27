@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from rest_framework.test import APIClient, APITestCase
 from api.models import Station
 from api.views import refresh_stations
 from rest_framework.test import APIRequestFactory
@@ -44,13 +45,16 @@ class StationTest(TestCase):
 ####################################           Tests vues           ####################################################
 ########################################################################################################################
 
-class ViewsTest(TestCase):
+
+class ViewsTest(APITestCase):
     def setUp(self):
-        self.Client = Client()
+        self.Client = APIClient()
 
     def Test_vue(self):
-        response = self.Client.get('/stations/closest/')
+        response = self.Client.get('/api/docs/')
         self.assertEqual(response.status_code, 200)
+
+
 ########################################################################################################################
 ####################################           Tests API            ####################################################
 ########################################################################################################################
