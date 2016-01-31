@@ -10,6 +10,7 @@ from rest_framework.test import APIRequestFactory
 ####################################          Base    Tests         ####################################################
 ########################################################################################################################
 
+
 class RefreshTest(TestCase):
     """
     Test la fonction refresh_stations
@@ -55,9 +56,24 @@ class ViewsTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-########################################################################################################################
-####################################           Tests API            ####################################################
-########################################################################################################################
-
-
-
+class StationTest(TestCase):
+    """
+    Test unitaire du modèle Station
+    """
+    def test_station(self):
+        station_test = Station(number=901,
+                        name="00901 - PORT SOLFERINO (STATION MOBILE)",
+                        address="QUAI ANATOLE FRANCE - PONT SOLFERINO - 75007 PARIS",
+                        lat=48.86138,
+                        lng=2.32442,
+                        banking=True,
+                        bonus=True,
+                        status="OPEN",
+                        contract_name="Paris",
+                        bike_stands=20,
+                        available_bike_stands=7,
+                        available_bikes=12,
+                        optimal_criterion=0.2,
+                        last_update="2016-01-24T19:17:50Z",
+                        modified_date="2016-01-24T19:26:28.424Z")
+        self.assertEqual(str(station_test), "00901 - PORT SOLFERINO (STATION MOBILE)")
