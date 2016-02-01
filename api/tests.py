@@ -94,34 +94,44 @@ class APITest(APITestCase):
     def test_closest(self):
         response = self.Client.get('/api/stations/closest', {'latitude': self.lat_origin, 'longitude': self.long_origin})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data[0], None)
 
     def test_closest_pick(self):
         response = self.Client.get('/api/stations/closest/pick', {'latitude': self.lat_origin, 'longitude': self.long_origin})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data[0], None)
 
     def test_closest_drop(self):
         response = self.Client.get('/api/stations/closest/drop', {'latitude': self.lat_origin, 'longitude': self.long_origin})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data[0], None)
 
     def test_optimal_pick(self):
         response = self.Client.get('/api/stations/optimal/pick', {'latitude': self.lat_origin, 'longitude': self.long_origin})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data[0], None)
 
     def test_optimal_drop(self):
         response = self.Client.get('/api/stations/optimal/drop', {'latitude': self.lat_origin, 'longitude': self.long_origin})
+        print(response.data)
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data[0], None)
 
     def test_closest_itinerary(self):
         response = self.Client.get('/api/stations/itinerary/closest', {'a-latitude': self.lat_origin,
-                                                                   'a-longitude': self.long_origin,
-                                                                   'b-latitude': self.lat_destination,
-                                                                   'b-longitude': self.long_destination})
+                                                                       'a-longitude': self.long_origin,
+                                                                       'b-latitude': self.lat_destination,
+                                                                       'b-longitude': self.long_destination})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data['destination'], None)
+        self.assertNotEqual(response.data['origin'], None)
 
     def test_optimal_itinerary(self):
         response = self.Client.get('/api/stations/itinerary/optimal', {'a-latitude': self.lat_origin,
-                                                                   'a-longitude': self.long_origin,
-                                                                   'b-latitude': self.lat_destination,
-                                                                   'b-longitude': self.long_destination})
+                                                                       'a-longitude': self.long_origin,
+                                                                       'b-latitude': self.lat_destination,
+                                                                       'b-longitude': self.long_destination})
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.data['destination'], None)
+        self.assertNotEqual(response.data['origin'], None)
 
