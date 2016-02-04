@@ -566,7 +566,7 @@ def closest_itinerary(request, format=None):
     """
     try:
         origin_latitude = request.query_params.get('a-latitude', None)
-        origin_longitude = request.query_params.get('b-longitude', None)
+        origin_longitude = request.query_params.get('a-longitude', None)
         origin_address = request.query_params.get('a-address', None)
         destination_latitude = request.query_params.get('b-latitude', None)
         destination_longitude = request.query_params.get('b-longitude', None)
@@ -640,7 +640,7 @@ def optimal_itinerary(request, format=None):
     """
     try:
         origin_latitude = request.query_params.get('a-latitude', None)
-        origin_longitude = request.query_params.get('b-longitude', None)
+        origin_longitude = request.query_params.get('a-longitude', None)
         origin_address = request.query_params.get('a-address', None)
         destination_latitude = request.query_params.get('b-latitude', None)
         destination_longitude = request.query_params.get('b-longitude', None)
