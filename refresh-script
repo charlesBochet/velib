@@ -1,0 +1,5 @@
+#!/bin/bash
+while [ true ]; do
+ sleep 30
+ curl http://localhost/api/stations/refresh > /dev/null 2>&1
+done
